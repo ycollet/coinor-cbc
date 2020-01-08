@@ -4,18 +4,15 @@
 
 option(COIN_USE_PTHREAD_WIN32 "Enable the use of PThreads for Windows" OFF)
 option(COIN_USE_MINGW_LAPACK  "Enable the use of MinGW compiled Blas / Lapack" OFF)
-option(COIN_USE_LAPACK        "Enable the use of Blas / Lapack" OFF)
+option(COIN_USE_SYSTEM_LAPACK "Enable the use of the system Lapack" OFF)
 option(COIN_USE_CLAPACK       "Enable the use of CBlas / CLapack" OFF)
 option(COIN_USE_GLPK          "Enable the use of GLPK" OFF)
 option(COIN_USE_METIS         "Enable the use of METIS" OFF)
-option(COIN_USE_MUMPS         "Enable the download / compilation of Mumps" OFF)
+option(COIN_USE_MUMPS         "Enable the use of Mumps" OFF)
 option(COIN_USE_ASL           "Enable the use of Ampl Solver Library" OFF)
 option(COIN_USE_ZLIB          "Enable the use of Zlib" OFF)
 option(COIN_USE_BZLIB         "Enable the use of BZlib" OFF)
 option(COIN_USE_SUITESPARSE   "Enable the use of SuiteSparse" OFF)
-if (WIN32)
-  option(COIN_ENABLE_DOWNLOAD_PATCH       "Enable the download / use of Patch exe (for Windows)" OFF)
-endif ()
 
 if (WIN32 AND NOT MINGW)
   set(ZLIB_NAME  "zlibstatic.lib" CACHE FILEPATH "The Zlib library name"  FORCE)
@@ -31,10 +28,10 @@ endif ()
 mark_as_advanced(ZLIB_NAME
                  BZLIB_NAME)
 
-if (COIN_USE_PTHREAD_WIN32 OR COIN_USE_LAPACK OR COIN_USE_CLAPACK OR COIN_USE_MINGW_LAPACK OR
-    COIN_USE_GLPK OR COIN_USE_MUMPS OR COIN_USE_ZLIB OR
-    COIN_USE_ASL OR COIN_USE_BZLIB OR COIN_USE_METIS OR
-    COIN_USE_SUITESPARSE)
+if (COIN_USE_PTHREAD_WIN32 OR COIN_USE_SYSTEM_LAPACK OR COIN_USE_CLAPACK OR COIN_USE_MINGW_LAPACK OR
+    COIN_USE_GLPK OR COIN_USE_MUMPS OR COIN_USE_METIS OR
+    COIN_USE_ASL OR COIN_USE_ZLIB OR COIN_USE_SUITESPARSE OR
+    COIN_USE_BZLIB)
   return ()
 endif ()
 
@@ -43,14 +40,17 @@ option(COIN_ENABLE_DOWNLOAD_MINGW_LAPACK  "Enable the download / compilation of 
 option(COIN_ENABLE_DOWNLOAD_LAPACK        "Enable the download / compilation of Blas / Lapack" OFF)
 option(COIN_ENABLE_DOWNLOAD_CLAPACK       "Enable the download / compilation of CBlas / CLapack" OFF)
 option(COIN_ENABLE_DOWNLOAD_GLPK          "Enable the download / compilation of GLPK" OFF)
-option(COIN_ENABLE_DOWNLOAD_DATA_TEST     "Enable the download / run of Data tests" OFF)
-option(COIN_ENABLE_DOWNLOAD_MIPLIB2000    "Enable the download / run of Miplib 2000 tests" OFF)
 option(COIN_ENABLE_DOWNLOAD_METIS         "Enable the download / compilation of METIS" OFF)
 option(COIN_ENABLE_DOWNLOAD_MUMPS         "Enable the download / compilation of Mumps" OFF)
 option(COIN_ENABLE_DOWNLOAD_ASL           "Enable the download / compilation of Ampl Solver Library" OFF)
+option(COIN_ENABLE_DOWNLOAD_DATA_TEST     "Enable the download / run of Data tests" OFF)
+option(COIN_ENABLE_DOWNLOAD_MIPLIB2000    "Enable the download / run of miplib 2000 - benchmark" OFF)
 option(COIN_ENABLE_DOWNLOAD_ZLIB          "Enable the download / compilation of Zlib" OFF)
 option(COIN_ENABLE_DOWNLOAD_BZLIB         "Enable the download / compilation of BZlib" OFF)
 option(COIN_ENABLE_DOWNLOAD_SUITESPARSE   "Enable the download / compilation of SuiteSparse" OFF)
+if (WIN32)
+  option(COIN_ENABLE_DOWNLOAD_PATCH       "Enable the download / use of Patch exe (for Windows)" OFF)
+endif ()
 
 option(COIN_ENABLE_FIND_LAPACK "Enable the detection of Blas / Lapack" OFF)
 option(COIN_ENABLE_FIND_ZLIB   "Enable the detection of Zlib" OFF)
@@ -118,6 +118,34 @@ else ()
   set(CMAKE_GENERATOR    "Unix Makefiles")
   set(CMAKE_MAKE_PROGRAM "make")
 endif ()
+
+if (NOT COIN_ENABLE_DOWNLOAD_MINGW_LAPACK AND
+    NOT COIN_ENABLE_DOWNLOAD_LAPACK AND
+    NOT COIN_ENABLE_DOWNLOAD_CLAPACK AND
+    NOT COIN_USE_SYSTEM_LAPACK)
+  message(FATAL_ERROR "One kind of Blas / Lapack must be selected: 
+ - COIN_ENABLE_DOWNLOAD_MINGW_LAPACK AND
+ - COIN_ENABLE_DOWNLOAD_LAPACK AND
+ - COIN_ENABLE_DOWNLOAD_CLAPACK AND
+ - COIN_USE_SYSTEM_LAPACK")
+endif ()
+
+# #################################################
+# ===>    System Lapack
+# #################################################
+
+if (COIN_USE_SYSTEM_LAPACK)
+  find_package(LAPACK REQUIRED)
+  
+  set(COIN_ENABLE_DOWNLOAD_LAPACK  OFF CACHE BOOL "Enable the download / compilation of Blas / Lapack")
+  set(COIN_ENABLE_DOWNLOAD_CLAPACK OFF CACHE BOOL "Enable the download / compilation of CBlas / CLapack")
+  
+  get_filename_component(LAPACK_LINK_PATH "${LAPACK_LIBRARIES}" DIRECTORY)
+endif ()
+
+# #################################################
+# <===    System Lapack
+# #################################################
 
 # #################################################
 # ===>    CLapack
@@ -293,7 +321,7 @@ if (COIN_ENABLE_DOWNLOAD_ZLIB)
 
   set(COINUTILS_HAS_ZLIB_INCLUDE_PATH "${EP_InstallDir}/include" CACHE STRING "The Zlib library include Path" FORCE)
   set(COINUTILS_HAS_ZLIB_LIBRARY_PATH "${EP_InstallDir}/lib"     CACHE STRING "The Zlib library library Path" FORCE)
-  set(COINUTILS_HAS_ZLIB              ON                         CACHE BOOL "Activate Zlib for CoinUtils"     FORCE)
+  set(COINUTILS_HAS_ZLIB              ON                         CACHE BOOL "Activate Zlib for CoinUtils" FORCE)
   
   if (WIN32 AND NOT MINGW)
     set(ZLIB_NAME "${EP_InstallDir}/lib/zlibstatic.lib"  CACHE STRING "The Zlib library name" FORCE)
@@ -410,7 +438,7 @@ endif ()
 # #################################################
 
 if (COIN_ENABLE_DOWNLOAD_GLPK)
-  set(GLPK_VERSION "4.63")
+  set(GLPK_VERSION "4.65")
   set(COMPILE_OSI_GLPK ON CACHE BOOL "Compile the OSI GLPK solver" FORCE)
   
   set(GLPK_URL        "http:////ftp.gnu.org/gnu/glpk/glpk-${GLPK_VERSION}.tar.gz" CACHE FILEPATH "Path to glpk-${GLPK_VERSION}.tar.gz source archive")
@@ -516,11 +544,8 @@ endif ()
 
 if (COIN_ENABLE_DOWNLOAD_MUMPS)
   set(MUMPS_VERSION "4.10.0")
-  set(COIN_HAS_MUMPS  ON CACHE BOOL "Clp uses the MUMPS linear solver" FORCE)
-  set(IPOPT_HAS_MUMPS ON CACHE BOOL "Enable Mumps solver" FORCE)
+  set(COIN_HAS_MUMPS ON CACHE BOOL "Clp uses the MUMPS linear solver" FORCE)
   
-  set(MUMPS_DEPENDS "")
-
   if (COIN_ENABLE_DOWNLOAD_METIS)
     set(MUMPS_DEPENDS ${MUMPS_DEPENDS} EP_Metis)
     
@@ -530,6 +555,8 @@ if (COIN_ENABLE_DOWNLOAD_MUMPS)
     set(MUMPS_METIS_INC_PATH "None" CACHE PATH "The METIS library include Path" FORCE)
     set(MUMPS_METIS_LIB_PATH "None" CACHE PATH "The METIS library library Path" FORCE)
   endif ()
+
+  set(MUMPS_DEPENDS "")
 
   if (COIN_ENABLE_DOWNLOAD_CLAPACK)
     message(FATAL_ERROR "MUMPS cannot be compiled using CLapack")
@@ -546,7 +573,13 @@ if (COIN_ENABLE_DOWNLOAD_MUMPS)
   
   set(MUMPS_URL        "http:////mumps.enseeiht.fr/MUMPS_${MUMPS_VERSION}.tar.gz" CACHE FILEPATH "Path toMUMPS_${MUMPS_VERSION}.tar.gz source archive")
   set(MUMPS_InstallDir "${EP_InstallDir}/Mumps-${MUMPS_VERSION}/${CMAKE_CFG_INTDIR}/")
-  
+
+  if (COIN_USE_SYSTEM_LAPACK)
+    set(MUMPS_LAPACK_PATH "${LAPACK_LINK_PATH}")
+  else ()
+    set(MUMPS_LAPACK_PATH "${EP_InstallDir}/lib")
+  endif ()
+
   # TODO: we need to add the path to mumps_mpi.h once Mumps is patched ...
   ExternalProject_Add(EP_Mumps
                       PREFIX            ${MUMPS_InstallDir}
@@ -557,7 +590,7 @@ if (COIN_ENABLE_DOWNLOAD_MUMPS)
 #		                     && ${CMAKE_COMMAND} -E chdir ${MUMPS_InstallDir}/src/EP_Mumps ${PATCH_EXECUTABLE} -p1 < ${CMAKE_CURRENT_SOURCE_DIR}/mumps_mpi.patch
 #		                     && ${CMAKE_COMMAND} -E chdir ${MUMPS_InstallDir}/src/EP_Mumps ${PATCH_EXECUTABLE} -p1 < ${CMAKE_CURRENT_SOURCE_DIR}/mumps.patch
                       CONFIGURE_COMMAND ${CMAKE_COMMAND} -E make_directory ${MUMPS_InstallDir}/src/EP_Mumps/build
-                                     && ${CMAKE_COMMAND} -E chdir ${MUMPS_InstallDir}/src/EP_Mumps/build ${CMAKE_COMMAND} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_INSTALL_PREFIX=${EP_InstallDir} -DMUMPS_USE_LIBSEQ=ON -DMUMPS_USE_METIS=${COIN_ENABLE_DOWNLOAD_METIS} -DMUMPS_LAPACK_LIB_PATH:Path=${MUMPS_LAPACK_LIB_PATH} -DMUMPS_METIS_INC_PATH:Path=${MUMPS_METIS_INC_PATH} -DMUMPS_METIS_LIB_PATH:Path=${MUMPS_METIS_LIB_PATH} -DMUMPS_INSTALL_COIN=ON -DMUMPS_USE_F2C=${COIN_ENABLE_DOWNLOAD_CLAPACK} -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} -G ${CMAKE_GENERATOR} ..
+                                     && ${CMAKE_COMMAND} -E chdir ${MUMPS_InstallDir}/src/EP_Mumps/build ${CMAKE_COMMAND} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_INSTALL_PREFIX=${EP_InstallDir} -DMUMPS_USE_LIBSEQ=ON -DMUMPS_USE_METIS=${COIN_ENABLE_DOWNLOAD_METIS} -DMUMPS_LAPACK_LIB_PATH:Path=${MUMPS_LAPACK_PATH} -DMUMPS_METIS_INC_PATH:Path=${MUMPS_METIS_INC_PATH} -DMUMPS_METIS_LIB_PATH:Path=${MUMPS_METIS_LIB_PATH} -DMUMPS_INSTALL_COIN=ON -DMUMPS_USE_F2C=${COIN_ENABLE_DOWNLOAD_CLAPACK} -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} -G ${CMAKE_GENERATOR} ..
                       BUILD_COMMAND     ${CMAKE_COMMAND} -E chdir ${MUMPS_InstallDir}/src/EP_Mumps/build ${CMAKE_MAKE_PROGRAM}
                       INSTALL_COMMAND   ${CMAKE_COMMAND} -E chdir ${MUMPS_InstallDir}/src/EP_Mumps/build ${CMAKE_MAKE_PROGRAM} install
                       )
@@ -686,14 +719,15 @@ if (COIN_ENABLE_DOWNLOAD_DATA_TEST)
   ExternalProject_Add(EP_DATA_TEST
                       PREFIX            ${EP_InstallDir}/DATA_TEST
                       URL               ${DATA_TEST_URL}
-                      UPDATE_COMMAND    ""
                       PATCH_COMMAND     ""
+                      UPDATE_COMMAND    ""
                       CONFIGURE_COMMAND ""
                       BUILD_COMMAND     ""
                       INSTALL_COMMAND   ""
                       )
-  
+
   include(ClpTests.cmake)
+  include(CbcTests.cmake)
 endif ()
 
 if (COIN_ENABLE_DOWNLOAD_MIPLIB2000)
@@ -712,6 +746,7 @@ if (COIN_ENABLE_DOWNLOAD_MIPLIB2000)
                       )
 
   include(ClpMiplib2000Tests.cmake)
+  include(CbcMiplib2000Tests.cmake)
 endif ()
 
 # #################################################
