@@ -1,14 +1,8 @@
 cmake_minimum_required(VERSION 3.0.2)
 
-project(Cbc)
+project(Cgl)
 
 option(COIN_ENABLE_READLINE "Enable the use of the readline library" OFF)
-
-# Cbc options
-option(CBC_USE_THREADS "Enable the compilation of the SMP version of CBC" OFF)
-set(CBC_DEFAULT_SOLVER "clp" CACHE STRING "The name of the default solver to be used in cbc-generic (clp, dylp, glpk, soplex)")
-set(COIN_CBC_CHECKLEVEL "0" CACHE STRING "The debug sanity check level of Cbc (0 if no test)")
-set(COIN_CBC_VERBOSITY  "0" CACHE STRING "The debug verbosity level of Cbc (0 if no output)")
 
 # Clp options
 option(COIN_ENABLE_AMD "Clp uses the AMD linear solver" OFF)
@@ -36,7 +30,7 @@ set(COIN_ABC_LEVEL      "0" CACHE STRING "Use the Aboca solver (1, 2, 3, 4) - 0,
 set(COIN_CLP_CHECKLEVEL "0" CACHE STRING "The debug sanity check level of Clp (0 if no test)")
 set(COIN_CLP_VERBOSITY  "0" CACHE STRING "The debug verbosity level of Clp (0 if no output)")
 
-option(COIN_HAS_MKL "Use Intel MKL library (requires Intel compiler)" OFF)
+option(COIN_HAS_MKL       "Use Intel MKL library (requires Intel compiler)" OFF)
 option(COIN_USE_FAST_CODE "Use fast code for CoinUtils and Clp" OFF)
 
 # Cgl options
@@ -46,14 +40,12 @@ set(COIN_CGL_VERBOSITY  "0" CACHE STRING "The debug verbosity level of Cgl (0 if
 # Osi options
 set(COIN_OSI_CHECKLEVEL "0" CACHE STRING "The debug sanity check level of Osi (0 if no test)")
 set(COIN_OSI_VERBOSITY  "0" CACHE STRING "The debug verbosity level of Osi (0 if no output)")
-
 option(USE_OSI_XPRESS "Use Xpress solver" OFF)
 option(USE_OSI_CPLEX  "Use Cplex solver"  OFF)
 option(USE_OSI_GLPK   "Use GLPK solver"   OFF)
 option(USE_OSI_GUROBI "Use GUROBI solver" OFF)
 option(USE_OSI_MOSEK  "Use Mosek solver"  OFF)
 option(USE_OSI_SOPLEX "Use Soplex solver" OFF)
-
 option(COMPILE_OSI_XPRESS "Compile the OSI Xpress solver" OFF)
 option(COMPILE_OSI_CPLEX  "Compile the OSI Cplex solver"  OFF)
 option(COMPILE_OSI_GLPK   "Compile the OSI GLPK solver"   OFF)
@@ -94,9 +86,6 @@ set(COINOR_DIR "None" CACHE PATH "The Path where all the used CoinOR libraries a
 set(COIN_THREADS_INC_PATH "None" CACHE PATH "The path to the PThreads header files")
 set(COIN_THREADS_LIB_PATH "None" CACHE PATH "The path to the PThreads library files")
 
-mark_as_advanced(COIN_THREADS_INC_PATH
-                 COIN_THREADS_LIB_PATH)
-
 # Compilation options
 option(ENABLE_SHARED_LIBRARIES       "Build libraries as shared libraries" OFF)
 option(COIN_COMPILE_STATIC           "Activate the static linking" OFF)
@@ -112,16 +101,17 @@ option(COIN_ENABLE_DOXYGEN           "Enable the build of doxygen documentation"
 option(USE_PROCESSOR_EXTENSIONS      "Use sse / mmx / avx extensions during compilation" OFF)
 option(COIN_ENABLE_COMPAT            "Enable libc compatibility" OFF)
 
-# Perform SVN checkout of source code
-option(COIN_PERFORM_CHECKOUT "Perform Subversion checkout of source code" OFF)
-
 # Set paths of source
-set(COIN_DIR "${CMAKE_CURRENT_SOURCE_DIR}" CACHE PATH "The Cbc Path")
+set(COIN_DIR "${CMAKE_CURRENT_SOURCE_DIR}" CACHE PATH "The Cgl Path")
 
 set(COIN_COVERAGE_CTEST_LABEL "SAMPLE" CACHE PATH "The label sent to ctest during coverage")
 
-mark_as_advanced(ENABLE_SHARED_LIBRARIES
-                 COIN_ENABLE_READLINE
+mark_as_advanced(USE_COINOR_BIN
+                 COINOR_DIR
+                 USE_PROCESSOR_EXTENSIONS
+                 COIN_THREADS_INC_PATH
+                 COIN_THREADS_LIB_PATH
+                 ENABLE_SHARED_LIBRARIES
                  COIN_COMPILE_STATIC
                  COIN_COMPILE_COVERAGE
                  COIN_COMPILE_PROFILE
@@ -163,16 +153,9 @@ mark_as_advanced(ENABLE_SHARED_LIBRARIES
                  COIN_HAS_MKL
                  COIN_CGL_CHECKLEVEL
                  COIN_CGL_VERBOSITY
-                 CBC_USE_THREADS
-                 CBC_DEFAULT_SOLVER
-                 COIN_CBC_CHECKLEVEL
-                 COIN_CBC_VERBOSITY
                  COIN_OSI_CHECKLEVEL
                  COIN_OSI_VERBOSITY
                  COIN_USE_FAST_CODE
-                 USE_COINOR_BIN
-                 COINOR_DIR
-                 USE_PROCESSOR_EXTENSIONS
 		 COIN_COVERAGE_CTEST_LABEL)
 
 # Set paths for binary and library generation inside the build directory:
@@ -186,6 +169,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
 include(coin-macros)
 include(GetAcInitVersion)
 include(CheckCLinkerFlag)
+include(GNUInstallDirs)
 
 Enable_Testing ()
 
@@ -200,23 +184,23 @@ else ()
 endif ()
 
 # Various definitions
-set(COIN_HAS_CGL 1) # Set this to 1 if cgl is compiled # NOT USED
-set(COIN_HAS_CLP 1) # Set this to 1 if clp is compiled # USED
+set(COIN_HAS_CGL 1) # Set this to 1 if cgl is compiled
+set(COIN_HAS_CLP 1) # Set this to 1 if clp is compiled
 
 # Name of package
-set(PACKAGE           "Cbc")
+set(PACKAGE           "Cgl")
 # Define to the address where bug reports for this package should be sent.
 set(PACKAGE_BUGREPORT "bugs@coin-or.org")
 # Define to the full name of this package.
-set(PACKAGE_NAME      "Cbc")
+set(PACKAGE_NAME      "Cgl")
 # Define to the full name and version of this package.
-set(PACKAGE_STRING    "Cbc")
+set(PACKAGE_STRING    "Cgl")
 # Define to the one symbol short name of this package.
-set(PACKAGE_TARNAME   "cbc")
+set(PACKAGE_TARNAME   "cgl")
 
 if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-  set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/cbc_binary" 
-      CACHE PATH "Cbc install prefix" FORCE)
+  set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/cgl_binary" 
+      CACHE PATH "Cgl install prefix" FORCE)
 endif ()
 
 include(CheckCCompilerFlag)
@@ -267,7 +251,7 @@ if (USE_PROCESSOR_EXTENSIONS)
 endif ()
 
 # Check for MKL
-if (COIN_HAS_MKL)
+if ((CMAKE_CXX_COMPILER_ID STREQUAL "Intel") AND COIN_HAS_MKL)
   find_package(MKL)
   
   if (MKL_FOUND)
@@ -275,7 +259,7 @@ if (COIN_HAS_MKL)
   else ()
     message(status "MKL library not found")
   endif ()
-
+  
   # Copy libiomp5md.dll in the build directory
   if (WIN32)
     if (HAVE_64_BIT)
@@ -331,13 +315,10 @@ coin_check_and_add_library_path(COIN_HAS_MUMPS_LIBRARY_PATH)
 coin_check_and_add_include_path(COIN_HAS_WSMP_INCLUDE_PATH)
 coin_check_and_add_library_path(COIN_HAS_WSMP_LIBRARY_PATH)
 
-if (COIN_PERFORM_CHECKOUT)
-  find_package(Subversion)
-  
-  exec_program(${Subversion_SVN_EXECUTABLE}
-               ARGS checkout https://projects.coin-or.org/svn/Cbc/trunk ${CMAKE_BINARY_DIR}/SVN)
-  
-  set(COIN_DIR ${CMAKE_BINARY_DIR}/SVN)
+if (NOT COIN_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+  if (NOT EXISTS "${COIN_DIR}")
+    message(FATAL_ERROR "Error: COIN_DIR = ${COIN_DIR} which is not an existing directory")
+  endif ()
 endif ()
 
 if (NOT COINOR_DIR STREQUAL "None")
@@ -396,7 +377,7 @@ if (UNIX)
       endif ()
     endif ()
   endif ()
-endif ()
+endif ()  
 
 #-----------------------------------------------------------------------------
 # Manage specific VS flags
@@ -516,28 +497,26 @@ add_custom_target(uninstall
 
 # Structure obtained via:
 # git clone https://github.com/coin-or/coinbrew
-# coinbrew/coinbrew fetch --git --main-proj="Cbc"
+# coinbrew/coinbrew fetch --git --main-proj="Cgl"
 set(BuildTools_DIR    ${COIN_DIR}/../BuildTools)
 set(CoinUtils_DIR     ${COIN_DIR}/../CoinUtils/CoinUtils)
 set(CoinUtilsTest_DIR ${COIN_DIR}/../CoinUtils/CoinUtils/test)
 set(Osi_DIR           ${COIN_DIR}/../Osi/Osi)
 set(Clp_DIR           ${COIN_DIR}/../Clp/Clp)
-set(Cgl_DIR           ${COIN_DIR}/../Cgl/Cgl)
-set(Cbc_DIR           ${COIN_DIR}/Cbc)
+set(Cgl_DIR           ${COIN_DIR}/Cgl)
 
 if (EXISTS ${COIN_DIR}/CoinUtils/CoinUtils/test)
   # Structure obtained via:
   # git clone https://github.com/coin-or/coinbrew
-  # git clone https://github.com/coin-or/Cbc
-  # cd Cbc
-  # ../coinbrew/coinbrew fetch --git --main-proj=. --skip="Cbc"
+  # git clone https://github.com/coin-or/Cgl
+  # cd Cgl
+  # ../coinbrew/coinbrew fetch --git --main-proj=. --skip="Cgl"
   set(BuildTools_DIR    ${COIN_DIR}/BuildTools)
   set(CoinUtils_DIR     ${COIN_DIR}/CoinUtils/CoinUtils)
   set(CoinUtilsTest_DIR ${COIN_DIR}/CoinUtils/CoinUtils/test)
   set(Osi_DIR           ${COIN_DIR}/Osi/Osi)
   set(Clp_DIR           ${COIN_DIR}/Clp/Clp)
-  set(Cgl_DIR           ${COIN_DIR}/Cgl/Cgl)
-  set(Cbc_DIR           ${COIN_DIR}/Cbc)
+  set(Cgl_DIR           ${COIN_DIR}/Cgl)
 endif ()
 
 if (EXISTS ${COIN_DIR}/CoinUtils/test)
@@ -548,7 +527,6 @@ if (EXISTS ${COIN_DIR}/CoinUtils/test)
   set(Osi_DIR           ${COIN_DIR}/Osi)
   set(Clp_DIR           ${COIN_DIR}/Clp)
   set(Cgl_DIR           ${COIN_DIR}/Cgl)
-  set(Cbc_DIR           ${COIN_DIR}/Cbc)
 endif ()
 
 include(CheckIncludeFileCXX)
@@ -781,23 +759,22 @@ set(CMAKE_REQUIRED_LIBRARIES )
 
 check_symbol_exists(clock_gettime time.h     HAVE_CLOCK_GETTIME)
 check_symbol_exists(gettimeofday  sys/time.h HAVE_GETTIMEOFDAY)
-           
+
 if (COIN_USE_FAST_CODE)
   add_definitions(-DCOIN_FAST_CODE -DCLP_FAST_CODE -DCOIN_USE_RESTRICT -DCOIN_NOTEST_DUPLICATE)
   
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fomit-frame-pointer ")
-  set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -fomit-frame-pointer ")
+  set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} -fomit-frame-pointer ")
   
   if (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-math-errno -fp-trap=none ")
-    set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -fno-math-errno -fp-trap=none ")
+    set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} -fno-math-errno -fp-trap=none ")
   endif ()
 
   if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ffast-math -fno-math-errno -fno-trapping-math ")
-    set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -ffast-math -fno-math-errno -fno-trapping-math ")
+    set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} -ffast-math -fno-math-errno -fno-trapping-math ")
   endif ()
-  
 endif ()
 
 if (COINUTILS_USE_THREADS)
@@ -810,10 +787,6 @@ if (COINUTILS_USE_MEMPOOL_MAXPOOLED)
   set(COINUTILS_MEMPOOL_MAXPOOLED 4096)
 else ()
   set(COINUTILS_MEMPOOL_MAXPOOLED -1)
-endif ()
-if (CBC_USE_THREADS)
-  set(CBC_THREAD 1)
-  add_definitions(-DTHREAD -DCBC_THREAD) 
 endif ()
 if (USE_OSI_XPRESS)
   set(COIN_HAS_XPR 1)
@@ -860,16 +833,14 @@ if (DOXYGEN AND COIN_ENABLE_DOXYGEN)
   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/doxydoc/doxygen.conf.in           ${CMAKE_BINARY_DIR}/doxydoc/doxygen.conf)
   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Clp/doxydoc/doxygen.conf.in       ${CMAKE_BINARY_DIR}/Clp/doxydoc/doxygen.conf)
   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/CoinUtils/doxydoc/doxygen.conf.in ${CMAKE_BINARY_DIR}/CoinUtils/doxydoc/doxygen.conf)
-  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Cbc/doxydoc/doxygen.conf.in       ${CMAKE_BINARY_DIR}/Cbc/doxydoc/doxygen.conf)
-  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Osi/Osi/doxydoc/doxygen.conf.in   ${CMAKE_BINARY_DIR}/Osi/Osi/doxydoc/doxygen.conf)
+  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Osi/doxydoc/doxygen.conf.in       ${CMAKE_BINARY_DIR}/Osi/doxydoc/doxygen.conf)
 
   add_custom_target(docs 
                     ${DOXYGEN_EXECUTABLE} ${CMAKE_BINARY_DIR}/Cgl/doxydoc/doxygen.conf
                     ${DOXYGEN_EXECUTABLE} ${CMAKE_BINARY_DIR}/doxydoc/doxygen.conf
                     ${DOXYGEN_EXECUTABLE} ${CMAKE_BINARY_DIR}/Clp/doxydoc/doxygen.conf
                     ${DOXYGEN_EXECUTABLE} ${CMAKE_BINARY_DIR}/CoinUtils/doxydoc/doxygen.conf
-                    ${DOXYGEN_EXECUTABLE} ${CMAKE_BINARY_DIR}/Cbc/doxydoc/doxygen.conf
-                    ${DOXYGEN_EXECUTABLE} ${CMAKE_BINARY_DIR}/Osi/Osi/doxydoc/doxygen.conf)
+                    ${DOXYGEN_EXECUTABLE} ${CMAKE_BINARY_DIR}/Osi/doxydoc/doxygen.conf)
 endif ()
 
 subdirs(ThirdParty)
@@ -890,13 +861,14 @@ if (NOT USE_COINOR_BIN)
   
   subdirs(CoinUtils)
   
-  subdirs(Cgl)
-  subdirs(Clp)
   subdirs(Osi/Osi)
-  subdirs(Osi/OsiClp)
 else ()
   include_directories(${COINOR_DIR}/include/coin)
 endif ()
+
+subdirs(Cgl)
+subdirs(Clp)
+subdirs(Osi/OsiClp) 
 
 if (USE_OSI_XPRESS OR COMPILE_OSI_XPRESS)
   subdirs(Osi/OsiXpr) 
@@ -917,459 +889,14 @@ if (USE_OSI_SOPLEX OR COMPILE_OSI_SOPLEX)
   subdirs(Osi/OsiSpx) 
 endif ()
 
-subdirs(Osi/OsiCbc)
-subdirs(Cbc)
-
 #
 # Install dll dependencies
 #
 
 if (WIN32)
   install(DIRECTORY ${CMAKE_BINARY_DIR}/bin
-          DESTINATION bin
+          DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}
           PATTERN "*.dll")
-endif ()
-
-#
-# Perform some tests
-#
-
-# Create a directory to store results from tests
-if (NOT EXISTS ${CMAKE_BINARY_DIR}/tests)
-  make_directory(${CMAKE_BINARY_DIR}/tests)
-endif ()
-
-if (COIN_HAS_CLP)
-  set(TEST_LIB_PATH "${CMAKE_BINARY_DIR}/${CMAKE_CFG_INTDIR}/Dependencies/lib")
-  set(TEST_BIN_PATH "${CMAKE_BINARY_DIR}/${CMAKE_CFG_INTDIR}/Dependencies/bin")
-
-  # With MPS files
-  
-  add_test(NAME afiro_mps_cbc_standard 
-           COMMAND $<TARGET_FILE:cbc> ${COIN_DIR}/Data/Sample/afiro.mps -solution ${CMAKE_BINARY_DIR}/tests/afiro.out -solve)
-  set_tests_properties(afiro_mps_cbc_standard PROPERTIES TIMEOUT 30)
-  set_tests_properties(afiro_mps_cbc_standard PROPERTIES LABELS "MPS")
-  if (WIN32)
-    set_tests_properties(afiro_mps_cbc_standard PROPERTIES ENVIRONMENT "PATH=${TEST_LIB_DIR}\\;${TEST_BIN_DIR}")
-  endif ()
-  
-  # This test seems to be specific for Ipopt
-  #add_test(NAME conic_mps_cbc_standard 
-  #         COMMAND $<TARGET_FILE:cbc> ${COIN_DIR}/Data/Sample/conic.mps -solution ${CMAKE_BINARY_DIR}/tests/conic.out -solve)
-  #set_tests_properties(conic_mps_cbc_standard PROPERTIES TIMEOUT 3000)
-  #set_tests_properties(conic_mps_cbc_standard PROPERTIES LABELS "MPS;LONG")
-  #if (WIN32)
-  #  set_tests_properties(conic_mps_cbc_standard PROPERTIES ENVIRONMENT "PATH=${TEST_LIB_DIR}\\;${TEST_BIN_DIR}")
-  #endif ()
-  
-  add_test(NAME exmip1_mps_cbc_standard 
-           COMMAND $<TARGET_FILE:cbc> ${COIN_DIR}/Data/Sample/exmip1.mps -solution ${CMAKE_BINARY_DIR}/tests/exmip1.out -solve)
-  set_tests_properties(exmip1_mps_cbc_standard PROPERTIES TIMEOUT 30)
-  set_tests_properties(exmip1_mps_cbc_standard PROPERTIES LABELS "MPS")
-  if (WIN32)
-    set_tests_properties(exmip1_mps_cbc_standard PROPERTIES ENVIRONMENT "PATH=${TEST_LIB_DIR}\\;${TEST_BIN_DIR}")
-  endif ()
-  
-  add_test(NAME galenet_mps_cbc_standard 
-           COMMAND $<TARGET_FILE:cbc> ${COIN_DIR}/Data/Sample/galenet.mps -solution ${CMAKE_BINARY_DIR}/tests/galenet.out -solve)
-  set_tests_properties(galenet_mps_cbc_standard PROPERTIES TIMEOUT 30)
-  set_tests_properties(galenet_mps_cbc_standard PROPERTIES LABELS "MPS")
-  if (WIN32)
-    set_tests_properties(galenet_mps_cbc_standard PROPERTIES ENVIRONMENT "PATH=${TEST_LIB_DIR}\\;${TEST_BIN_DIR}")
-  endif ()
-  
-  add_test(NAME nw460_mps_cbc_standard 
-           COMMAND $<TARGET_FILE:cbc> ${COIN_DIR}/Data/Sample/nw460.mps -solution ${CMAKE_BINARY_DIR}/tests/nw460.out -solve)
-  set_tests_properties(nw460_mps_cbc_standard PROPERTIES TIMEOUT 30)
-  set_tests_properties(nw460_mps_cbc_standard PROPERTIES LABELS "MPS")
-  if (WIN32)
-    set_tests_properties(nw460_mps_cbc_standard PROPERTIES ENVIRONMENT "PATH=${TEST_LIB_DIR}\\;${TEST_BIN_DIR}")
-  endif ()
-  
-  add_test(NAME p0548_mps_cbc_standard 
-           COMMAND $<TARGET_FILE:cbc> ${COIN_DIR}/Data/Sample/p0548.mps -solution ${CMAKE_BINARY_DIR}/tests/p0548.out -solve)
-  set_tests_properties(p0548_mps_cbc_standard PROPERTIES TIMEOUT 30)
-  set_tests_properties(p0548_mps_cbc_standard PROPERTIES LABEL "MPS")
-  if (WIN32)
-    set_tests_properties(p0548_mps_cbc_standard PROPERTIES ENVIRONMENT "PATH=${TEST_LIB_DIR}\\;${TEST_BIN_DIR}")
-  endif ()
-  
-  add_test(NAME scOneInt_mps_cbc_standard 
-           COMMAND $<TARGET_FILE:cbc> ${COIN_DIR}/Data/Sample/scOneInt.mps -solution ${CMAKE_BINARY_DIR}/tests/scOneInt.out -solve)
-  set_tests_properties(scOneInt_mps_cbc_standard PROPERTIES TIMEOUT 30)
-  set_tests_properties(scOneInt_mps_cbc_standard PROPERTIES TIMEOUT "MPS")
-  if (WIN32)
-    set_tests_properties(scOneInt_mps_cbc_standard PROPERTIES ENVIRONMENT "PATH=${TEST_LIB_DIR}\\;${TEST_BIN_DIR}")
-  endif ()
-  
-  add_test(NAME tp3_mps_cbc_standard 
-           COMMAND $<TARGET_FILE:cbc> ${COIN_DIR}/Data/Sample/tp3.mps -solution ${CMAKE_BINARY_DIR}/tests/tp3.out -solve)
-  set_tests_properties(tp3_mps_cbc_standard PROPERTIES TIMEOUT 30)
-  set_tests_properties(tp3_mps_cbc_standard PROPERTIES LABELS "MPS")
-  if (WIN32)
-    set_tests_properties(tp3_mps_cbc_standard PROPERTIES ENVIRONMENT "PATH=${TEST_LIB_DIR}\\;${TEST_BIN_DIR}")
-  endif ()
-  
-  add_test(NAME wedding_16_mps_cbc_standard 
-           COMMAND $<TARGET_FILE:cbc> ${COIN_DIR}/Data/Sample/wedding_16.mps -solution ${CMAKE_BINARY_DIR}/tests/wedding_16.out -solve)
-  set_tests_properties(wedding_16_mps_cbc_standard PROPERTIES TIMEOUT 3000)
-  set_tests_properties(wedding_16_mps_cbc_standard PROPERTIES LABELS "MPS;LONG")
-  if (WIN32)
-    set_tests_properties(wedding_16_mps_cbc_standard PROPERTIES ENVIRONMENT "PATH=${TEST_LIB_DIR}\\;${TEST_BIN_DIR}")
-  endif ()
-  
-  add_test(NAME atm_5_10_1_mps_cbc_standard 
-           COMMAND $<TARGET_FILE:cbc> ${COIN_DIR}/Data/Sample/atm_5_10_1.mps -solution ${CMAKE_BINARY_DIR}/tests/atm_5_10_1.out -solve)
-  set_tests_properties(atm_5_10_1_mps_cbc_standard PROPERTIES TIMEOUT 30)
-  set_tests_properties(atm_5_10_1_mps_cbc_standard PROPERTIES LABELS "MPS")
-  if (WIN32)
-    set_tests_properties(atm_5_10_1_mps_cbc_standard PROPERTIES ENVIRONMENT "PATH=${TEST_LIB_DIR}\\;${TEST_BIN_DIR}")
-  endif ()
-  
-  add_test(NAME e226_mps_cbc_standard
-           COMMAND $<TARGET_FILE:cbc> ${COIN_DIR}/Data/Sample/e226.mps -solution ${CMAKE_BINARY_DIR}/tests/e226.out -solve)
-  set_tests_properties(e226_mps_cbc_standard PROPERTIES TIMEOUT 30)
-  set_tests_properties(e226_mps_cbc_standard PROPERTIES LABELS "MPS")
-  if (WIN32)
-    set_tests_properties(e226_mps_cbc_standard PROPERTIES ENVIRONMENT "PATH=${TEST_LIB_DIR}\\;${TEST_BIN_DIR}")
-  endif ()
-  
-  add_test(NAME finnis_mps_cbc_standard 
-           COMMAND $<TARGET_FILE:cbc> ${COIN_DIR}/Data/Sample/finnis.mps -solution ${CMAKE_BINARY_DIR}/tests/finnis.out -solve)
-  set_tests_properties(finnis_mps_cbc_standard PROPERTIES TIMEOUT 30)
-  set_tests_properties(finnis_mps_cbc_standard PROPERTIES LABELS "MPS")
-  if (WIN32)
-    set_tests_properties(finnis_mps_cbc_standard PROPERTIES ENVIRONMENT "PATH=${TEST_LIB_DIR}\\;${TEST_BIN_DIR}")
-  endif ()
-  
-  add_test(NAME hello_mps_cbc_standard 
-           COMMAND $<TARGET_FILE:cbc> ${COIN_DIR}/Data/Sample/hello.mps -solution ${CMAKE_BINARY_DIR}/tests/hello.out -solve)
-  set_tests_properties(hello_mps_cbc_standard PROPERTIES TIMEOUT 30)
-  set_tests_properties(hello_mps_cbc_standard PROPERTIES LABELS "MPS")
-  if (WIN32)
-    set_tests_properties(hello_mps_cbc_standard PROPERTIES ENVIRONMENT "PATH=${TEST_LIB_DIR}\\;${TEST_BIN_DIR}")
-  endif ()
-  
-  add_test(NAME p0033_mps_cbc_standard 
-           COMMAND $<TARGET_FILE:cbc> ${COIN_DIR}/Data/Sample/p0033.mps -solution ${CMAKE_BINARY_DIR}/tests/p0033.out -solve)
-  set_tests_properties(p0033_mps_cbc_standard PROPERTIES TIMEOUT 30)
-  set_tests_properties(p0033_mps_cbc_standard PROPERTIES LABELS "MPS")
-  if (WIN32)
-    set_tests_properties(p0033_mps_cbc_standard PROPERTIES ENVIRONMENT "PATH=${TEST_LIB_DIR}\\;${TEST_BIN_DIR}")
-  endif ()
-  
-  add_test(NAME pack1_mps_cbc_standard 
-           COMMAND $<TARGET_FILE:cbc> ${COIN_DIR}/Data/Sample/pack1.mps -solution ${CMAKE_BINARY_DIR}/tests/pack1.out -solve)
-  set_tests_properties(pack1_mps_cbc_standard PROPERTIES TIMEOUT 30)
-  set_tests_properties(pack1_mps_cbc_standard PROPERTIES LABELS "MPS")
-  if (WIN32)
-    set_tests_properties(pack1_mps_cbc_standard PROPERTIES ENVIRONMENT "PATH=${TEST_LIB_DIR}\\;${TEST_BIN_DIR}")
-  endif ()
-  
-  add_test(NAME share2qp_mps_cbc_standard 
-           COMMAND $<TARGET_FILE:cbc> ${COIN_DIR}/Data/Sample/share2qp.mps -solution ${CMAKE_BINARY_DIR}/tests/share2qp.out -solve)
-  set_tests_properties(share2qp_mps_cbc_standard PROPERTIES TIMEOUT 30)
-  set_tests_properties(share2qp_mps_cbc_standard PROPERTIES LABELS "MPS")
-  if (WIN32)
-    set_tests_properties(share2qp_mps_cbc_standard PROPERTIES ENVIRONMENT "PATH=${TEST_LIB_DIR}\\;${TEST_BIN_DIR}")
-  endif ()
-  
-  add_test(NAME tp4_mps_cbc_standard 
-           COMMAND $<TARGET_FILE:cbc> ${COIN_DIR}/Data/Sample/tp4.mps -solution ${CMAKE_BINARY_DIR}/tests/tp4.out -solve)
-  set_tests_properties(tp4_mps_cbc_standard PROPERTIES TIMEOUT 30)
-  set_tests_properties(tp4_mps_cbc_standard PROPERTIES LABELS "MPS")
-  if (WIN32)
-    set_tests_properties(tp4_mps_cbc_standard PROPERTIES ENVIRONMENT "PATH=${TEST_LIB_DIR}\\;${TEST_BIN_DIR}")
-  endif ()
-  
-  add_test(NAME brandy_mps_cbc_standard 
-           COMMAND $<TARGET_FILE:cbc> ${COIN_DIR}/Data/Sample/brandy.mps -solution ${CMAKE_BINARY_DIR}/tests/brandy.out -solve)
-  set_tests_properties(brandy_mps_cbc_standard PROPERTIES TIMEOUT 30)
-  set_tests_properties(brandy_mps_cbc_standard PROPERTIES LABELS "MPS")
-  if (WIN32)
-    set_tests_properties(brandy_mps_cbc_standard PROPERTIES ENVIRONMENT "PATH=${TEST_LIB_DIR}\\;${TEST_BIN_DIR}")
-  endif ()
-  
-  add_test(NAME exmip1.5_mps_cbc_standard 
-           COMMAND $<TARGET_FILE:cbc> ${COIN_DIR}/Data/Sample/exmip1.5.mps -solution ${CMAKE_BINARY_DIR}/tests/exmip1.5.out -solve)
-  set_tests_properties(exmip1.5_mps_cbc_standard PROPERTIES TIMEOUT 30)
-  set_tests_properties(exmip1.5_mps_cbc_standard PROPERTIES LABELS "MPS")
-  if (WIN32)
-    set_tests_properties(exmip1.5_mps_cbc_standard PROPERTIES ENVIRONMENT "PATH=${TEST_LIB_DIR}\\;${TEST_BIN_DIR}")
-  endif ()
-  
-  add_test(NAME galenetbnds_mps_cbc_standard 
-           COMMAND $<TARGET_FILE:cbc> ${COIN_DIR}/Data/Sample/galenetbnds.mps -solution ${CMAKE_BINARY_DIR}/tests/galenetbnds.out -solve)
-  set_tests_properties(galenetbnds_mps_cbc_standard PROPERTIES TIMEOUT 30)
-  set_tests_properties(galenetbnds_mps_cbc_standard PROPERTIES LABELS "MPS")
-  if (WIN32)
-    set_tests_properties(galenetbnds_mps_cbc_standard PROPERTIES ENVIRONMENT "PATH=${TEST_LIB_DIR}\\;${TEST_BIN_DIR}")
-  endif ()
-  
-  add_test(NAME lseu_mps_cbc_standard
-           COMMAND $<TARGET_FILE:cbc> ${COIN_DIR}/Data/Sample/lseu.mps -solution ${CMAKE_BINARY_DIR}/tests/lseu.out -solve)
-  set_tests_properties(lseu_mps_cbc_standard PROPERTIES TIMEOUT 30)
-  set_tests_properties(lseu_mps_cbc_standard PROPERTIES LABELS "MPS")
-  if (WIN32)
-    set_tests_properties(lseu_mps_cbc_standard PROPERTIES ENVIRONMENT "PATH=${TEST_LIB_DIR}\\;${TEST_BIN_DIR}")
-  endif ()
-  
-  add_test(NAME p0201_mps_cbc_standard
-           COMMAND $<TARGET_FILE:cbc> ${COIN_DIR}/Data/Sample/p0201.mps -solution ${CMAKE_BINARY_DIR}/tests/p0201.out -solve)
-  set_tests_properties(p0201_mps_cbc_standard PROPERTIES TIMEOUT 30)
-  set_tests_properties(p0201_mps_cbc_standard PROPERTIES LABELS "MPS")
-  if (WIN32)
-    set_tests_properties(p0201_mps_cbc_standard PROPERTIES ENVIRONMENT "PATH=${TEST_LIB_DIR}\\;${TEST_BIN_DIR}")
-  endif ()
-  
-  add_test(NAME retail3_mps_cbc_standard
-           COMMAND $<TARGET_FILE:cbc> ${COIN_DIR}/Data/Sample/retail3.mps -solution ${CMAKE_BINARY_DIR}/tests/retail3.out -solve)
-  set_tests_properties(retail3_mps_cbc_standard PROPERTIES TIMEOUT 3000)
-  set_tests_properties(retail3_mps_cbc_standard PROPERTIES LABELS "MPS;LONG")
-  if (WIN32)
-    set_tests_properties(retail3_mps_cbc_standard PROPERTIES ENVIRONMENT "PATH=${TEST_LIB_DIR}\\;${TEST_BIN_DIR}")
-  endif ()
-  
-  add_test(NAME spec_sections_mps_cbc_standard
-           COMMAND $<TARGET_FILE:cbc> ${COIN_DIR}/Data/Sample/spec_sections.mps -solution ${CMAKE_BINARY_DIR}/tests/spec_sections.out -solve)
-  set_tests_properties(spec_sections_mps_cbc_standard PROPERTIES TIMEOUT 3000)
-  set_tests_properties(spec_sections_mps_cbc_standard PROPERTIES LABELS "MPS;LONG")
-  if (WIN32)
-    set_tests_properties(spec_sections_mps_cbc_standard PROPERTIES ENVIRONMENT "PATH=${TEST_LIB_DIR}\\;${TEST_BIN_DIR}")
-  endif ()
-  
-  add_test(NAME tp5_mps_cbc_standard
-           COMMAND $<TARGET_FILE:cbc> ${COIN_DIR}/Data/Sample/tp5.mps -solution ${CMAKE_BINARY_DIR}/tests/tp5.out -solve)
-  set_tests_properties(tp5_mps_cbc_standard PROPERTIES TIMEOUT 30)
-  set_tests_properties(tp5_mps_cbc_standard PROPERTIES LABELS "MPS")
-  if (WIN32)
-    set_tests_properties(tp5_mps_cbc_standard PROPERTIES ENVIRONMENT "PATH=${TEST_LIB_DIR}\\;${TEST_BIN_DIR}")
-  endif ()
-  
-  # With LP files
-  
-  add_test(NAME exmip1_lp_cbc_standard 
-           COMMAND $<TARGET_FILE:cbc> ${COIN_DIR}/Data/Sample/exmip1.lp -solution ${CMAKE_BINARY_DIR}/tests/exmip1_lp.out -solve)
-  set_tests_properties(exmip1_lp_cbc_standard PROPERTIES TIMEOUT 30)
-  set_tests_properties(exmip1_lp_cbc_standard PROPERTIES LABELS "LP")
-  if (WIN32)
-    set_tests_properties(exmip1_lp_cbc_standard PROPERTIES ENVIRONMENT "PATH=${TEST_LIB_DIR}\\;${TEST_BIN_DIR}")
-  endif ()
-endif ()
-
-if (CBC_BUILD_CBC_GENERIC)
-  # With MPS files
-  
-  add_test(NAME afiro_mps_cbc_generic 
-           COMMAND $<TARGET_FILE:cbc-generic> ${COIN_DIR}/Data/Sample/afiro.mps -solution ${CMAKE_BINARY_DIR}/tests/afiro.out -solve)
-  set_tests_properties(afiro_mps_cbc_generic PROPERTIES TIMEOUT 30)
-  set_tests_properties(afiro_mps_cbc_generic PROPERTIES LABELS "MPS")
-  if (WIN32)
-    set_tests_properties(afiro_mps_cbc_generic PROPERTIES ENVIRONMENT "PATH=${TEST_LIB_DIR}\\;${TEST_BIN_DIR}")
-  endif ()
-  
-  # This test seems to be specific for Ipopt
-  #add_test(NAME conic_mps_cbc_generic 
-  #         COMMAND $<TARGET_FILE:cbc-generic> ${COIN_DIR}/Data/Sample/conic.mps -solution ${CMAKE_BINARY_DIR}/tests/conic.out -solve)
-  #set_tests_properties(conic_mps_cbc_generic PROPERTIES TIMEOUT 30)
-  #set_tests_properties(conic_mps_cbc_generic PROPERTIES LABELS "MPS")
-  #if (WIN32)
-  #  set_tests_properties(conic_mps_cbc_generic PROPERTIES ENVIRONMENT "PATH=${TEST_LIB_DIR}\\;${TEST_BIN_DIR}")
-  #endif ()
-  
-  add_test(NAME exmip1_mps_cbc_generic 
-           COMMAND $<TARGET_FILE:cbc-generic> ${COIN_DIR}/Data/Sample/exmip1.mps -solution ${CMAKE_BINARY_DIR}/tests/exmip1.out -solve)
-  set_tests_properties(exmip1_mps_cbc_generic PROPERTIES TIMEOUT 30)
-  set_tests_properties(exmip1_mps_cbc_generic PROPERTIES LABELS "MPS")
-  if (WIN32)
-    set_tests_properties(exmip1_mps_cbc_generic PROPERTIES ENVIRONMENT "PATH=${TEST_LIB_DIR}\\;${TEST_BIN_DIR}")
-  endif ()
-  
-  add_test(NAME galenet_mps_cbc_generic 
-           COMMAND $<TARGET_FILE:cbc-generic> ${COIN_DIR}/Data/Sample/galenet.mps -solution ${CMAKE_BINARY_DIR}/tests/galenet.out -solve)
-  set_tests_properties(galenet_mps_cbc_generic PROPERTIES TIMEOUT 30)
-  set_tests_properties(galenet_mps_cbc_generic PROPERTIES LABELS "MPS")
-  if (WIN32)
-    set_tests_properties(galenet_mps_cbc_generic PROPERTIES ENVIRONMENT "PATH=${TEST_LIB_DIR}\\;${TEST_BIN_DIR}")
-  endif ()
-  
-  add_test(NAME nw460_mps_cbc_generic 
-           COMMAND $<TARGET_FILE:cbc-generic> ${COIN_DIR}/Data/Sample/nw460.mps -solution ${CMAKE_BINARY_DIR}/tests/nw460.out -solve)
-  set_tests_properties(nw460_mps_cbc_generic PROPERTIES TIMEOUT 30)
-  set_tests_properties(nw460_mps_cbc_generic PROPERTIES LABELS "MPS")
-  if (WIN32)
-    set_tests_properties(nw460_mps_cbc_generic PROPERTIES ENVIRONMENT "PATH=${TEST_LIB_DIR}\\;${TEST_BIN_DIR}")
-  endif ()
-  
-  add_test(NAME p0548_mps_cbc_generic 
-           COMMAND $<TARGET_FILE:cbc-generic> ${COIN_DIR}/Data/Sample/p0548.mps -solution ${CMAKE_BINARY_DIR}/tests/p0548.out -solve)
-  set_tests_properties(p0548_mps_cbc_generic PROPERTIES TIMEOUT 30)
-  set_tests_properties(p0548_mps_cbc_generic PROPERTIES LABEL "MPS")
-  if (WIN32)
-    set_tests_properties(p0548_mps_cbc_generic PROPERTIES ENVIRONMENT "PATH=${TEST_LIB_DIR}\\;${TEST_BIN_DIR}")
-  endif ()
-  
-  add_test(NAME scOneInt_mps_cbc_generic 
-           COMMAND $<TARGET_FILE:cbc-generic> ${COIN_DIR}/Data/Sample/scOneInt.mps -solution ${CMAKE_BINARY_DIR}/tests/scOneInt.out -solve)
-  set_tests_properties(scOneInt_mps_cbc_generic PROPERTIES TIMEOUT 30)
-  set_tests_properties(scOneInt_mps_cbc_generic PROPERTIES TIMEOUT "MPS")
-  if (WIN32)
-    set_tests_properties(scOneInt_mps_cbc_generic PROPERTIES ENVIRONMENT "PATH=${TEST_LIB_DIR}\\;${TEST_BIN_DIR}")
-  endif ()
-  
-  add_test(NAME tp3_mps_cbc_generic 
-           COMMAND $<TARGET_FILE:cbc-generic> ${COIN_DIR}/Data/Sample/tp3.mps -solution ${CMAKE_BINARY_DIR}/tests/tp3.out -solve)
-  set_tests_properties(tp3_mps_cbc_generic PROPERTIES TIMEOUT 30)
-  set_tests_properties(tp3_mps_cbc_generic PROPERTIES LABELS "MPS")
-  if (WIN32)
-    set_tests_properties(tp3_mps_cbc_generic PROPERTIES ENVIRONMENT "PATH=${TEST_LIB_DIR}\\;${TEST_BIN_DIR}")
-  endif ()
-  
-  add_test(NAME wedding_16_mps_cbc_generic 
-           COMMAND $<TARGET_FILE:cbc-generic> ${COIN_DIR}/Data/Sample/wedding_16.mps -solution ${CMAKE_BINARY_DIR}/tests/wedding_16.out -solve)
-  set_tests_properties(wedding_16_mps_cbc_generic PROPERTIES TIMEOUT 30)
-  set_tests_properties(wedding_16_mps_cbc_generic PROPERTIES LABELS "MPS")
-  if (WIN32)
-    set_tests_properties(wedding_16_mps_cbc_generic PROPERTIES ENVIRONMENT "PATH=${TEST_LIB_DIR}\\;${TEST_BIN_DIR}")
-  endif ()
-  
-  add_test(NAME atm_5_10_1_mps_cbc_generic 
-           COMMAND $<TARGET_FILE:cbc-generic> ${COIN_DIR}/Data/Sample/atm_5_10_1.mps -solution ${CMAKE_BINARY_DIR}/tests/atm_5_10_1.out -solve)
-  set_tests_properties(atm_5_10_1_mps_cbc_generic PROPERTIES TIMEOUT 30)
-  set_tests_properties(atm_5_10_1_mps_cbc_generic PROPERTIES LABELS "MPS")
-  if (WIN32)
-    set_tests_properties(atm_5_10_1_mps_cbc_generic PROPERTIES ENVIRONMENT "PATH=${TEST_LIB_DIR}\\;${TEST_BIN_DIR}")
-  endif ()
-  
-  add_test(NAME e226_mps_cbc_generic
-           COMMAND $<TARGET_FILE:cbc-generic> ${COIN_DIR}/Data/Sample/e226.mps -solution ${CMAKE_BINARY_DIR}/tests/e226.out -solve)
-  set_tests_properties(e226_mps_cbc_generic PROPERTIES TIMEOUT 30)
-  set_tests_properties(e226_mps_cbc_generic PROPERTIES LABELS "MPS")
-  if (WIN32)
-    set_tests_properties(e226_mps_cbc_generic PROPERTIES ENVIRONMENT "PATH=${TEST_LIB_DIR}\\;${TEST_BIN_DIR}")
-  endif ()
-  
-  add_test(NAME finnis_mps_cbc_generic 
-           COMMAND $<TARGET_FILE:cbc-generic> ${COIN_DIR}/Data/Sample/finnis.mps -solution ${CMAKE_BINARY_DIR}/tests/finnis.out -solve)
-  set_tests_properties(finnis_mps_cbc_generic PROPERTIES TIMEOUT 30)
-  set_tests_properties(finnis_mps_cbc_generic PROPERTIES LABELS "MPS")
-  if (WIN32)
-    set_tests_properties(finnis_mps_cbc_generic PROPERTIES ENVIRONMENT "PATH=${TEST_LIB_DIR}\\;${TEST_BIN_DIR}")
-  endif ()
-  
-  add_test(NAME hello_mps_cbc_generic 
-           COMMAND $<TARGET_FILE:cbc-generic> ${COIN_DIR}/Data/Sample/hello.mps -solution ${CMAKE_BINARY_DIR}/tests/hello.out -solve)
-  set_tests_properties(hello_mps_cbc_generic PROPERTIES TIMEOUT 30)
-  set_tests_properties(hello_mps_cbc_generic PROPERTIES LABELS "MPS")
-  if (WIN32)
-    set_tests_properties(hello_mps_cbc_generic PROPERTIES ENVIRONMENT "PATH=${TEST_LIB_DIR}\\;${TEST_BIN_DIR}")
-  endif ()
-  
-  add_test(NAME p0033_mps_cbc_generic 
-           COMMAND $<TARGET_FILE:cbc-generic> ${COIN_DIR}/Data/Sample/p0033.mps -solution ${CMAKE_BINARY_DIR}/tests/p0033.out -solve)
-  set_tests_properties(p0033_mps_cbc_generic PROPERTIES TIMEOUT 30)
-  set_tests_properties(p0033_mps_cbc_generic PROPERTIES LABELS "MPS")
-  if (WIN32)
-    set_tests_properties(p0033_mps_cbc_generic PROPERTIES ENVIRONMENT "PATH=${TEST_LIB_DIR}\\;${TEST_BIN_DIR}")
-  endif ()
-  
-  add_test(NAME pack1_mps_cbc_generic 
-           COMMAND $<TARGET_FILE:cbc-generic> ${COIN_DIR}/Data/Sample/pack1.mps -solution ${CMAKE_BINARY_DIR}/tests/pack1.out -solve)
-  set_tests_properties(pack1_mps_cbc_generic PROPERTIES TIMEOUT 30)
-  set_tests_properties(pack1_mps_cbc_generic PROPERTIES LABELS "MPS")
-  if (WIN32)
-    set_tests_properties(pack1_mps_cbc_generic PROPERTIES ENVIRONMENT "PATH=${TEST_LIB_DIR}\\;${TEST_BIN_DIR}")
-  endif ()
-  
-  add_test(NAME share2qp_mps_cbc_generic 
-           COMMAND $<TARGET_FILE:cbc-generic> ${COIN_DIR}/Data/Sample/share2qp.mps -solution ${CMAKE_BINARY_DIR}/tests/share2qp.out -solve)
-  set_tests_properties(share2qp_mps_cbc_generic PROPERTIES TIMEOUT 30)
-  set_tests_properties(share2qp_mps_cbc_generic PROPERTIES LABELS "MPS")
-  if (WIN32)
-    set_tests_properties(share2qp_mps_cbc_generic PROPERTIES ENVIRONMENT "PATH=${TEST_LIB_DIR}\\;${TEST_BIN_DIR}")
-  endif ()
-  
-  add_test(NAME tp4_mps_cbc_generic 
-           COMMAND $<TARGET_FILE:cbc-generic> ${COIN_DIR}/Data/Sample/tp4.mps -solution ${CMAKE_BINARY_DIR}/tests/tp4.out -solve)
-  set_tests_properties(tp4_mps_cbc_generic PROPERTIES TIMEOUT 30)
-  set_tests_properties(tp4_mps_cbc_generic PROPERTIES LABELS "MPS")
-  if (WIN32)
-    set_tests_properties(tp4_mps_cbc_generic PROPERTIES ENVIRONMENT "PATH=${TEST_LIB_DIR}\\;${TEST_BIN_DIR}")
-  endif ()
-  
-  add_test(NAME brandy_mps_cbc_generic 
-           COMMAND $<TARGET_FILE:cbc-generic> ${COIN_DIR}/Data/Sample/brandy.mps -solution ${CMAKE_BINARY_DIR}/tests/brandy.out -solve)
-  set_tests_properties(brandy_mps_cbc_generic PROPERTIES TIMEOUT 30)
-  set_tests_properties(brandy_mps_cbc_generic PROPERTIES LABELS "MPS")
-  if (WIN32)
-    set_tests_properties(brandy_mps_cbc_generic PROPERTIES ENVIRONMENT "PATH=${TEST_LIB_DIR}\\;${TEST_BIN_DIR}")
-  endif ()
-  
-  add_test(NAME exmip1.5_mps_cbc_generic 
-           COMMAND $<TARGET_FILE:cbc-generic> ${COIN_DIR}/Data/Sample/exmip1.5.mps -solution ${CMAKE_BINARY_DIR}/tests/exmip1.5.out -solve)
-  set_tests_properties(exmip1.5_mps_cbc_generic PROPERTIES TIMEOUT 30)
-  set_tests_properties(exmip1.5_mps_cbc_generic PROPERTIES LABELS "MPS")
-  if (WIN32)
-    set_tests_properties(exmip1.5_mps_cbc_generic PROPERTIES ENVIRONMENT "PATH=${TEST_LIB_DIR}\\;${TEST_BIN_DIR}")
-  endif ()
-  
-  add_test(NAME galenetbnds_mps_cbc_generic 
-           COMMAND $<TARGET_FILE:cbc-generic> ${COIN_DIR}/Data/Sample/galenetbnds.mps -solution ${CMAKE_BINARY_DIR}/tests/galenetbnds.out -solve)
-  set_tests_properties(galenetbnds_mps_cbc_generic PROPERTIES TIMEOUT 30)
-  set_tests_properties(galenetbnds_mps_cbc_generic PROPERTIES LABELS "MPS")
-  if (WIN32)
-    set_tests_properties(galenetbnds_mps_cbc_generic PROPERTIES ENVIRONMENT "PATH=${TEST_LIB_DIR}\\;${TEST_BIN_DIR}")
-  endif ()
-  
-  add_test(NAME lseu_mps_cbc_generic
-           COMMAND $<TARGET_FILE:cbc-generic> ${COIN_DIR}/Data/Sample/lseu.mps -solution ${CMAKE_BINARY_DIR}/tests/lseu.out -solve)
-  set_tests_properties(lseu_mps_cbc_generic PROPERTIES TIMEOUT 30)
-  set_tests_properties(lseu_mps_cbc_generic PROPERTIES LABELS "MPS")
-  if (WIN32)
-    set_tests_properties(lseu_mps_cbc_generic PROPERTIES ENVIRONMENT "PATH=${TEST_LIB_DIR}\\;${TEST_BIN_DIR}")
-  endif ()
-  
-  add_test(NAME p0201_mps_cbc_generic
-           COMMAND $<TARGET_FILE:cbc-generic> ${COIN_DIR}/Data/Sample/p0201.mps -solution ${CMAKE_BINARY_DIR}/tests/p0201.out -solve)
-  set_tests_properties(p0201_mps_cbc_generic PROPERTIES TIMEOUT 30)
-  set_tests_properties(p0201_mps_cbc_generic PROPERTIES LABELS "MPS")
-  if (WIN32)
-    set_tests_properties(p0201_mps_cbc_generic PROPERTIES ENVIRONMENT "PATH=${TEST_LIB_DIR}\\;${TEST_BIN_DIR}")
-  endif ()
-  
-  add_test(NAME retail3_mps_cbc_generic
-           COMMAND $<TARGET_FILE:cbc-generic> ${COIN_DIR}/Data/Sample/retail3.mps -solution ${CMAKE_BINARY_DIR}/tests/retail3.out -solve)
-  set_tests_properties(retail3_mps_cbc_generic PROPERTIES TIMEOUT 30)
-  set_tests_properties(retail3_mps_cbc_generic PROPERTIES LABELS "MPS")
-  if (WIN32)
-    set_tests_properties(retail3_mps_cbc_generic PROPERTIES ENVIRONMENT "PATH=${TEST_LIB_DIR}\\;${TEST_BIN_DIR}")
-  endif ()
-  
-  add_test(NAME spec_sections_mps_cbc_generic
-           COMMAND $<TARGET_FILE:cbc-generic> ${COIN_DIR}/Data/Sample/spec_sections.mps -solution ${CMAKE_BINARY_DIR}/tests/spec_sections.out -solve)
-  set_tests_properties(spec_sections_mps_cbc_generic PROPERTIES TIMEOUT 30)
-  set_tests_properties(spec_sections_mps_cbc_generic PROPERTIES LABELS "MPS")
-  if (WIN32)
-    set_tests_properties(spec_sections_mps_cbc_generic PROPERTIES ENVIRONMENT "PATH=${TEST_LIB_DIR}\\;${TEST_BIN_DIR}")
-  endif ()
-  
-  add_test(NAME tp5_mps_cbc_generic
-           COMMAND $<TARGET_FILE:cbc-generic> ${COIN_DIR}/Data/Sample/tp5.mps -solution ${CMAKE_BINARY_DIR}/tests/tp5.out -solve)
-  set_tests_properties(tp5_mps_cbc_generic PROPERTIES TIMEOUT 30)
-  set_tests_properties(tp5_mps_cbc_generic PROPERTIES LABELS "MPS")
-  if (WIN32)
-    set_tests_properties(tp5_mps_cbc_generic PROPERTIES ENVIRONMENT "PATH=${TEST_LIB_DIR}\\;${TEST_BIN_DIR}")
-  endif ()
-  
-  # With LP files
-  
-  add_test(NAME exmip1_lp_cbc_generic 
-           COMMAND $<TARGET_FILE:cbc-generic> ${COIN_DIR}/Data/Sample/exmip1.lp -solution ${CMAKE_BINARY_DIR}/tests/exmip1_lp.out -solve)
-  set_tests_properties(exmip1_lp_cbc_generic PROPERTIES TIMEOUT 30)
-  set_tests_properties(exmip1_lp_cbc_generic PROPERTIES LABELS "LP")
-  if (WIN32)
-    set_tests_properties(exmip1_lp_cbc_generic PROPERTIES ENVIRONMENT "PATH=${TEST_LIB_DIR}\\;${TEST_BIN_DIR}")
-  endif ()
 endif ()
 
 #
@@ -1377,12 +904,12 @@ endif ()
 #
 
 set(CPACK_PACKAGE_NAME      "${PACKAGE_NAME}")
-set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CBC_VERSION}-${CMAKE_SYSTEM_NAME}")
+set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CGL_VERSION}-${CMAKE_SYSTEM_NAME}")
 
 message(STATUS "Package filename: ${CPACK_PACKAGE_FILE_NAME}")
 
 set(CPACK_PACKAGE_INSTALL_DIRECTORY "${PACKAGE_NAME}")
-set(CPACK_PACKAGE_VERSION "${CBC_VERSION}")
+set(CPACK_PACKAGE_VERSION "${CGL_VERSION}")
 
 set(CPACK_PACKAGE_RELOCATABLE TRUE)
 
@@ -1391,7 +918,7 @@ if (WIN32)
   set(CPACK_MONOLITHIC_INSTALL ON)
   set(CPACK_NSIS_CONTACT "${PACKAGE_BUGREPORT}")
   set(CPACK_NSIS_MODIFY_PATH ON)
-  set(CPACK_NSIS_PACKAGE_NAME "Cbc ${CBC_VERSION}")
+  set(CPACK_NSIS_PACKAGE_NAME "Cgl ${CGL_VERSION}")
 elseif (APPLE)
   set(CPACK_COMPONENTS_ALL_IN_ONE_PACKAGE ON)
   set(CPACK_PACKAGE_DEFAULT_LOCATION "/opt/${CPACK_PACKAGE_NAME}")
@@ -1409,11 +936,12 @@ else (WIN32)
   set(CPACK_RPM_PACKAGE_LICENSE "Copyrighted")
   set(CPACK_RPM_PACKAGE_GROUP "Development/Libraries")
   set(CPACK_RPM_PACKAGE_URL "${PACKAGE_URL}")
-  set(CPACK_RPM_PACKAGE_SUMMARY "Cbc is MIP solver library from CoinOR.")
+  set(CPACK_RPM_PACKAGE_SUMMARY "Cgl is a cut library from CoinOR.")
   set(CPACK_RPM_PACKAGE_DESCRIPTION 
-    "The Cbc suite includes:
+    "The Cgl suite includes:
 
-    * A set of linear solvers to manager the resolution of various problems.
+    * The Clp linear solver.
+    * A set of cuts for Cbc / Clp.
 "
     )
 endif ()
@@ -1446,5 +974,3 @@ get_directory_property(ALL_DEFS     COMPILE_DEFINITIONS)
 message(STATUS "${color_cyan}Include directories:${color_reset}     ${ALL_INCLUDES}")
 message(STATUS "${color_cyan}Link directories:${color_reset}        ${ALL_LINKS}")
 message(STATUS "${color_cyan}Compilation definitions:${color_reset} ${ALL_DEFS}")
-message(STATUS "${color_cyan}C flags:${color_reset}                 ${CMAKE_C_FLAGS}")
-message(STATUS "${color_cyan}C++ flags:${color_reset}               ${CMAKE_CXX_FLAGS}")

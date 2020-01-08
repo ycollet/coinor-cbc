@@ -8,11 +8,14 @@ option(COIN_USE_LAPACK        "Enable the use of Blas / Lapack" OFF)
 option(COIN_USE_CLAPACK       "Enable the use of CBlas / CLapack" OFF)
 option(COIN_USE_GLPK          "Enable the use of GLPK" OFF)
 option(COIN_USE_METIS         "Enable the use of METIS" OFF)
-option(COIN_USE_MUMPS         "Enable the use of Mumps" OFF)
+option(COIN_USE_MUMPS         "Enable the download / compilation of Mumps" OFF)
 option(COIN_USE_ASL           "Enable the use of Ampl Solver Library" OFF)
 option(COIN_USE_ZLIB          "Enable the use of Zlib" OFF)
 option(COIN_USE_BZLIB         "Enable the use of BZlib" OFF)
 option(COIN_USE_SUITESPARSE   "Enable the use of SuiteSparse" OFF)
+if (WIN32)
+  option(COIN_ENABLE_DOWNLOAD_PATCH       "Enable the download / use of Patch exe (for Windows)" OFF)
+endif ()
 
 if (WIN32 AND NOT MINGW)
   set(ZLIB_NAME  "zlibstatic.lib" CACHE FILEPATH "The Zlib library name"  FORCE)
@@ -29,9 +32,9 @@ mark_as_advanced(ZLIB_NAME
                  BZLIB_NAME)
 
 if (COIN_USE_PTHREAD_WIN32 OR COIN_USE_LAPACK OR COIN_USE_CLAPACK OR COIN_USE_MINGW_LAPACK OR
-    COIN_USE_GLPK OR COIN_USE_MUMPS OR COIN_USE_METIS OR
-    COIN_USE_ASL OR COIN_USE_ZLIB OR COIN_USE_SUITESPARSE OR
-    COIN_USE_BZLIB)
+    COIN_USE_GLPK OR COIN_USE_MUMPS OR COIN_USE_ZLIB OR
+    COIN_USE_ASL OR COIN_USE_BZLIB OR COIN_USE_METIS OR
+    COIN_USE_SUITESPARSE)
   return ()
 endif ()
 
@@ -40,17 +43,14 @@ option(COIN_ENABLE_DOWNLOAD_MINGW_LAPACK  "Enable the download / compilation of 
 option(COIN_ENABLE_DOWNLOAD_LAPACK        "Enable the download / compilation of Blas / Lapack" OFF)
 option(COIN_ENABLE_DOWNLOAD_CLAPACK       "Enable the download / compilation of CBlas / CLapack" OFF)
 option(COIN_ENABLE_DOWNLOAD_GLPK          "Enable the download / compilation of GLPK" OFF)
+option(COIN_ENABLE_DOWNLOAD_DATA_TEST     "Enable the download / run of Data tests" OFF)
+option(COIN_ENABLE_DOWNLOAD_MIPLIB2000    "Enable the download / run of Miplib 2000 tests" OFF)
 option(COIN_ENABLE_DOWNLOAD_METIS         "Enable the download / compilation of METIS" OFF)
 option(COIN_ENABLE_DOWNLOAD_MUMPS         "Enable the download / compilation of Mumps" OFF)
 option(COIN_ENABLE_DOWNLOAD_ASL           "Enable the download / compilation of Ampl Solver Library" OFF)
-option(COIN_ENABLE_DOWNLOAD_DATA_TEST     "Enable the download / run of Data tests" OFF)
-option(COIN_ENABLE_DOWNLOAD_MIPLIB2000    "Enable the download / run of miplib 2000 - benchmark" OFF)
 option(COIN_ENABLE_DOWNLOAD_ZLIB          "Enable the download / compilation of Zlib" OFF)
 option(COIN_ENABLE_DOWNLOAD_BZLIB         "Enable the download / compilation of BZlib" OFF)
 option(COIN_ENABLE_DOWNLOAD_SUITESPARSE   "Enable the download / compilation of SuiteSparse" OFF)
-if (WIN32)
-  option(COIN_ENABLE_DOWNLOAD_PATCH       "Enable the download / use of Patch exe (for Windows)" OFF)
-endif ()
 
 option(COIN_ENABLE_FIND_LAPACK "Enable the detection of Blas / Lapack" OFF)
 option(COIN_ENABLE_FIND_ZLIB   "Enable the detection of Zlib" OFF)
@@ -293,7 +293,7 @@ if (COIN_ENABLE_DOWNLOAD_ZLIB)
 
   set(COINUTILS_HAS_ZLIB_INCLUDE_PATH "${EP_InstallDir}/include" CACHE STRING "The Zlib library include Path" FORCE)
   set(COINUTILS_HAS_ZLIB_LIBRARY_PATH "${EP_InstallDir}/lib"     CACHE STRING "The Zlib library library Path" FORCE)
-  set(COINUTILS_HAS_ZLIB              ON                         CACHE BOOL "Activate Zlib for CoinUtils" FORCE)
+  set(COINUTILS_HAS_ZLIB              ON                         CACHE BOOL "Activate Zlib for CoinUtils"     FORCE)
   
   if (WIN32 AND NOT MINGW)
     set(ZLIB_NAME "${EP_InstallDir}/lib/zlibstatic.lib"  CACHE STRING "The Zlib library name" FORCE)
@@ -410,7 +410,7 @@ endif ()
 # #################################################
 
 if (COIN_ENABLE_DOWNLOAD_GLPK)
-  set(GLPK_VERSION "4.65")
+  set(GLPK_VERSION "4.63")
   set(COMPILE_OSI_GLPK ON CACHE BOOL "Compile the OSI GLPK solver" FORCE)
   
   set(GLPK_URL        "http:////ftp.gnu.org/gnu/glpk/glpk-${GLPK_VERSION}.tar.gz" CACHE FILEPATH "Path to glpk-${GLPK_VERSION}.tar.gz source archive")
@@ -516,8 +516,11 @@ endif ()
 
 if (COIN_ENABLE_DOWNLOAD_MUMPS)
   set(MUMPS_VERSION "4.10.0")
-  set(COIN_HAS_MUMPS ON CACHE BOOL "Clp uses the MUMPS linear solver" FORCE)
+  set(COIN_HAS_MUMPS  ON CACHE BOOL "Clp uses the MUMPS linear solver" FORCE)
+  set(IPOPT_HAS_MUMPS ON CACHE BOOL "Enable Mumps solver" FORCE)
   
+  set(MUMPS_DEPENDS "")
+
   if (COIN_ENABLE_DOWNLOAD_METIS)
     set(MUMPS_DEPENDS ${MUMPS_DEPENDS} EP_Metis)
     
@@ -527,8 +530,6 @@ if (COIN_ENABLE_DOWNLOAD_MUMPS)
     set(MUMPS_METIS_INC_PATH "None" CACHE PATH "The METIS library include Path" FORCE)
     set(MUMPS_METIS_LIB_PATH "None" CACHE PATH "The METIS library library Path" FORCE)
   endif ()
-
-  set(MUMPS_DEPENDS "")
 
   if (COIN_ENABLE_DOWNLOAD_CLAPACK)
     message(FATAL_ERROR "MUMPS cannot be compiled using CLapack")
@@ -545,7 +546,7 @@ if (COIN_ENABLE_DOWNLOAD_MUMPS)
   
   set(MUMPS_URL        "http:////mumps.enseeiht.fr/MUMPS_${MUMPS_VERSION}.tar.gz" CACHE FILEPATH "Path toMUMPS_${MUMPS_VERSION}.tar.gz source archive")
   set(MUMPS_InstallDir "${EP_InstallDir}/Mumps-${MUMPS_VERSION}/${CMAKE_CFG_INTDIR}/")
-
+  
   # TODO: we need to add the path to mumps_mpi.h once Mumps is patched ...
   ExternalProject_Add(EP_Mumps
                       PREFIX            ${MUMPS_InstallDir}
@@ -685,15 +686,14 @@ if (COIN_ENABLE_DOWNLOAD_DATA_TEST)
   ExternalProject_Add(EP_DATA_TEST
                       PREFIX            ${EP_InstallDir}/DATA_TEST
                       URL               ${DATA_TEST_URL}
-                      PATCH_COMMAND     ""
                       UPDATE_COMMAND    ""
+                      PATCH_COMMAND     ""
                       CONFIGURE_COMMAND ""
                       BUILD_COMMAND     ""
                       INSTALL_COMMAND   ""
                       )
-
+  
   include(ClpTests.cmake)
-  include(CbcTests.cmake)
 endif ()
 
 if (COIN_ENABLE_DOWNLOAD_MIPLIB2000)
@@ -712,7 +712,6 @@ if (COIN_ENABLE_DOWNLOAD_MIPLIB2000)
                       )
 
   include(ClpMiplib2000Tests.cmake)
-  include(CbcMiplib2000Tests.cmake)
 endif ()
 
 # #################################################
